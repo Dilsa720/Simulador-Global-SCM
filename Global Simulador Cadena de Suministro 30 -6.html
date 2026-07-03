@@ -1,0 +1,1604 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Global SCM Simulator | Dirige la Cadena de Suministro</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    },
+                    colors: {
+                        corporate: {
+                            dark: '#0f172a',
+                            primary: '#1e3a8a',
+                            secondary: '#3b82f6',
+                            accent: '#38bdf8',
+                            light: '#f8fafc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f1f5f9;
+        }
+        .kpi-bar {
+            transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes pulse-alert {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        .alert-pulse {
+            animation: pulse-alert 1.5s ease-in-out infinite;
+        }
+        #event-modal {
+            background-color: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(4px);
+        }
+        .mission-progress {
+            transition: width 0.3s ease-in-out;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 8px;
+        }
+
+        /* --- RESPONSIVE FIXES --- */
+        @media (max-width: 640px) {
+            .header-title {
+                font-size: 1rem !important;
+            }
+            .header-stats {
+                gap: 0.5rem !important;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+            .header-stats>div {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.6rem !important;
+            }
+            .header-stats i {
+                font-size: 0.7rem !important;
+            }
+            .sidebar-kpi {
+                padding: 0.75rem !important;
+            }
+            .sidebar-kpi .kpi-item {
+                margin-bottom: 0.75rem !important;
+            }
+            .main-content {
+                padding: 0.75rem !important;
+            }
+            .mission-grid {
+                grid-template-columns: 1fr !important;
+                gap: 0.75rem !important;
+            }
+            .challenge-card {
+                flex-direction: column !important;
+            }
+            .challenge-card .challenge-sidebar {
+                width: 100% !important;
+                padding: 1rem !important;
+                flex-direction: row !important;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+            .challenge-card .challenge-sidebar i {
+                font-size: 2.5rem !important;
+            }
+            .challenge-card .challenge-main {
+                width: 100% !important;
+                padding: 1rem !important;
+            }
+            .certificate-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.5rem !important;
+                padding: 0.75rem !important;
+            }
+            .certificate-border {
+                border-width: 4px !important;
+            }
+            .certificate-border div {
+                width: 2rem !important;
+                height: 2rem !important;
+            }
+            .intro-stats {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.5rem !important;
+            }
+            .intro-stats>div {
+                padding: 0.5rem !important;
+                font-size: 0.8rem !important;
+            }
+            .intro-stats>div span {
+                font-size: 1rem !important;
+            }
+            .btn-primary {
+                padding: 0.5rem 1.5rem !important;
+                font-size: 0.9rem !important;
+            }
+            .modal-content {
+                margin: 0.5rem !important;
+                max-width: 95% !important;
+            }
+            .activity-log {
+                height: 6rem !important;
+            }
+            .logo-img {
+                width: 2.5rem !important;
+                height: 2.5rem !important;
+            }
+            .cert-title {
+                font-size: 1.5rem !important;
+            }
+            .cert-subtitle {
+                font-size: 1rem !important;
+            }
+            .cert-footer {
+                flex-direction: column !important;
+                gap: 1rem !important;
+                align-items: center !important;
+            }
+            .cert-footer>div {
+                width: 100% !important;
+            }
+            .cert-footer>div div {
+                width: 100% !important;
+            }
+        }
+
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .mission-grid {
+                grid-template-columns: 1fr 1fr !important;
+            }
+            .challenge-card {
+                flex-direction: column !important;
+            }
+            .challenge-card .challenge-sidebar {
+                width: 100% !important;
+                padding: 1.5rem !important;
+                flex-direction: row !important;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+            .challenge-card .challenge-main {
+                width: 100% !important;
+                padding: 1.5rem !important;
+            }
+            .sidebar-kpi {
+                padding: 1rem !important;
+            }
+            .main-content {
+                padding: 1rem !important;
+            }
+            .intro-stats {
+                grid-template-columns: 1fr 1fr !important;
+            }
+            .logo-img {
+                width: 3rem !important;
+                height: 3rem !important;
+            }
+        }
+
+        /* Layout flex para móviles */
+        @media (max-width: 1024px) {
+            .main-layout {
+                flex-direction: column !important;
+                overflow-y: auto !important;
+                height: auto !important;
+                max-height: 100vh !important;
+            }
+            .main-layout aside {
+                width: 100% !important;
+                max-height: 20rem !important;
+                overflow-y: auto !important;
+                border-right: none !important;
+                border-bottom: 1px solid #e2e8f0 !important;
+                flex-shrink: 0 !important;
+            }
+            .main-layout main {
+                height: auto !important;
+                min-height: 60vh !important;
+                overflow-y: auto !important;
+                flex: 1 1 auto !important;
+            }
+            .main-layout .activity-log {
+                height: 4rem !important;
+                min-height: 4rem !important;
+            }
+            .main-layout .activity-log .log-entries {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                gap: 0.5rem !important;
+                padding: 0.25rem 0 !important;
+            }
+            .main-layout .activity-log .log-entries p {
+                white-space: nowrap !important;
+                font-size: 0.6rem !important;
+                flex-shrink: 0 !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-container {
+                flex-wrap: wrap !important;
+                gap: 0.25rem !important;
+                padding: 0.5rem !important;
+            }
+            .header-container .logo-area {
+                flex: 1 1 100% !important;
+                justify-content: center !important;
+            }
+            .header-container .stats-area {
+                flex: 1 1 100% !important;
+                justify-content: center !important;
+            }
+            .certificate-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.25rem !important;
+                padding: 0.5rem !important;
+            }
+            .certificate-grid p {
+                font-size: 0.6rem !important;
+            }
+            .certificate-grid .cert-value {
+                font-size: 1.2rem !important;
+            }
+            .modal-content .modal-impacts {
+                font-size: 0.8rem !important;
+            }
+            .modal-content .modal-impacts li {
+                font-size: 0.8rem !important;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- HEADER con Logo -->
+    <header class="bg-corporate-dark text-white shadow-lg z-10 flex-shrink-0">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center header-container">
+            <div class="flex items-center gap-3 logo-area">
+                <!-- LOGO AÑADIDO -->
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE6r5ysRaNPdD5-32QSYNRvA5MzkUZYvbDdQ&s" alt="Logo SCM" class="w-10 h-10 rounded-full object-cover border-2 border-corporate-accent logo-img">
+                <h1 class="text-xl font-bold tracking-tight header-title">GLOBAL SCM <span class="text-corporate-accent font-light">SIMULATOR</span></h1>
+             <h1 class="text-xl font-bold tracking-tight header-title">Profesora: Dilsa González </span></h1>
+</div>
+            <div class="flex items-center gap-6 text-sm font-medium header-stats">
+                <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                    <i class="fa-regular fa-calendar text-corporate-accent"></i>
+                    <span>Día: <span id="day-counter" class="text-white font-bold">1</span></span>
+                </div>
+                <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                    <i class="fa-solid fa-ranking-star text-yellow-400"></i>
+                    <span>Puntaje: <span id="score-counter" class="text-white font-bold">1000</span></span>
+                </div>
+                <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                    <i class="fa-solid fa-check-circle text-green-400"></i>
+                    <span>Misiones: <span id="mission-counter" class="text-white font-bold">0/5</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN LAYOUT -->
+    <div class="flex-1 flex overflow-hidden max-w-7xl mx-auto w-full main-layout">
+
+        <!-- LEFT SIDEBAR -->
+        <aside class="w-72 bg-white shadow-xl flex flex-col border-r border-slate-200 z-0 overflow-y-auto sidebar-kpi">
+            <div class="p-5 border-b border-slate-100 bg-slate-50">
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Tu Rol</h2>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-corporate-primary flex items-center justify-center text-white font-bold shadow-inner">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-800 leading-tight">Director SCM</p>
+                        <p class="text-xs text-corporate-secondary font-medium">Multinacional Food Co.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-5 flex-1 kpi-items">
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4"><i class="fa-solid fa-chart-pie mr-1"></i> Panel de Control (KPIs)</h2>
+
+                <div class="mb-5 kpi-item">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-semibold text-slate-700"><i class="fa-solid fa-money-bill-trend-up text-green-600 w-5"></i> Rentabilidad</span>
+                        <span id="val-rentabilidad" class="font-bold">80%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5 shadow-inner">
+                        <div id="bar-rentabilidad" class="bg-green-500 h-2.5 rounded-full kpi-bar" style="width: 80%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-5 kpi-item">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-semibold text-slate-700"><i class="fa-solid fa-truck-fast text-blue-500 w-5"></i> Nivel Servicio</span>
+                        <span id="val-servicio" class="font-bold">85%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5 shadow-inner">
+                        <div id="bar-servicio" class="bg-blue-500 h-2.5 rounded-full kpi-bar" style="width: 85%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-5 kpi-item">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-semibold text-slate-700"><i class="fa-solid fa-boxes-stacked text-orange-500 w-5"></i> Salud Inventario</span>
+                        <span id="val-inventario" class="font-bold">70%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5 shadow-inner">
+                        <div id="bar-inventario" class="bg-orange-500 h-2.5 rounded-full kpi-bar" style="width: 70%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-5 kpi-item">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-semibold text-slate-700"><i class="fa-solid fa-face-smile text-yellow-500 w-5"></i> Satisfacción</span>
+                        <span id="val-satisfaccion" class="font-bold">80%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5 shadow-inner">
+                        <div id="bar-satisfaccion" class="bg-yellow-400 h-2.5 rounded-full kpi-bar" style="width: 80%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-5 kpi-item">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-semibold text-slate-700"><i class="fa-solid fa-triangle-exclamation text-red-500 w-5"></i> Riesgo Operativo</span>
+                        <span id="val-riesgo" class="font-bold">25%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5 shadow-inner">
+                        <div id="bar-riesgo" class="bg-red-500 h-2.5 rounded-full kpi-bar" style="width: 25%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Log -->
+            <div class="p-4 bg-slate-800 text-white h-48 overflow-y-auto border-t border-slate-900 activity-log" id="activity-log">
+                <h3 class="text-xs font-bold text-slate-400 uppercase mb-2"><i class="fa-solid fa-clock mr-1"></i> Registro Operativo</h3>
+                <div class="text-xs text-slate-300 space-y-2 log-entries" id="log-entries">
+                    <p><span class="text-corporate-accent">[Día 0]</span> 🚀 Sistema SCM inicializado. Esperando órdenes del Director.</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 bg-slate-100 overflow-y-auto relative p-6 main-content">
+
+            <!-- VIEW: INTRO -->
+            <div id="view-intro" class="h-full flex flex-col items-center justify-center max-w-3xl mx-auto fade-in">
+                <div class="bg-white p-10 rounded-2xl shadow-xl text-center border-t-4 border-corporate-primary w-full">
+                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fa-solid fa-building-user text-corporate-primary text-4xl"></i>
+                    </div>
+                    <h1 class="text-3xl font-extrabold text-slate-800 mb-4">🏭 Bienvenido a la Operación</h1>
+                    <p class="text-lg text-slate-600 mb-6 leading-relaxed">
+                        Hoy asumes el rol de <strong>Gerente de Supply Chain</strong> de nuestra multinacional de alimentos.
+                        La empresa opera en <strong>tiempo real</strong>. Cada decisión impacta el negocio.
+                    </p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-left intro-stats">
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><i class="fa-solid fa-warehouse text-slate-400 mb-1 block"></i> <span class="font-bold">5</span> Bodegas</div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><i class="fa-solid fa-industry text-slate-400 mb-1 block"></i> <span class="font-bold">3</span> Plantas</div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><i class="fa-solid fa-handshake text-slate-400 mb-1 block"></i> <span class="font-bold">24</span> Proveedores</div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><i class="fa-solid fa-route text-slate-400 mb-1 block"></i> <span class="font-bold">18</span> Rutas</div>
+                    </div>
+                    <div class="bg-orange-50 border border-orange-200 text-orange-800 p-4 rounded-lg mb-8 text-sm text-left">
+                        <i class="fa-solid fa-circle-exclamation mr-2"></i><strong>ADVERTENCIA:</strong> Decisiones equivocadas generan pérdidas, clientes insatisfechos y rotura de inventario. ¡Cuidado con los eventos inesperados!
+                    </div>
+                    <button onclick="showMap()" class="bg-corporate-primary hover:bg-blue-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition hover:scale-105 btn-primary">
+                        Ingresar a las Instalaciones <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- VIEW: MAP -->
+            <div id="view-map" class="hidden h-full flex-col fade-in">
+                <div class="flex justify-between items-end mb-6 flex-wrap gap-2">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">🗺️ Mapa de Operaciones</h2>
+                        <p class="text-slate-500">Selecciona una instalación para resolver los retos pendientes.</p>
+                    </div>
+                    <span class="bg-corporate-light text-corporate-primary px-3 py-1 rounded-full text-sm font-semibold border border-corporate-primary">
+                        <i class="fa-solid fa-flag mr-1"></i> Progreso: <span id="map-mission-progress">0/5</span>
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mission-grid">
+                    <!-- Misión 1 -->
+                    <div onclick="startMission(1)" class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer overflow-hidden border border-slate-200 group relative hover:scale-[1.02]">
+                        <div class="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full alert-pulse" id="mission-1-badge">ALERTA</div>
+                        <div class="h-32 bg-slate-800 flex items-center justify-center relative overflow-hidden">
+                            <i class="fa-solid fa-industry text-5xl text-slate-600 group-hover:text-corporate-accent transition-colors z-10"></i>
+                            <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/blueprint.png')]"></div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="text-lg font-bold text-corporate-primary mb-1">🏭 Planta Principal</h3>
+                            <p class="text-sm font-semibold text-slate-700 mb-2">M1: El Desastre de la Demanda</p>
+                            <p class="text-xs text-slate-500">Ajusta pronósticos, maneja el Efecto Látigo y salva el abastecimiento.</p>
+                            <div class="mt-3 w-full bg-slate-200 rounded-full h-1.5">
+                                <div id="progress-1" class="bg-corporate-primary h-1.5 rounded-full mission-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Misión 2 -->
+                    <div onclick="startMission(2)" class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer overflow-hidden border border-slate-200 group hover:scale-[1.02]">
+                        <div class="h-32 bg-slate-800 flex items-center justify-center relative overflow-hidden">
+                            <i class="fa-solid fa-boxes-packing text-5xl text-slate-600 group-hover:text-corporate-accent transition-colors z-10"></i>
+                            <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/blueprint.png')]"></div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="text-lg font-bold text-corporate-primary mb-1">📦 Centro Distribución</h3>
+                            <p class="text-sm font-semibold text-slate-700 mb-2">M2: Operaciones Internas</p>
+                            <p class="text-xs text-slate-500">Gestión de pallets, FIFO/FEFO, cadena de frío y picking.</p>
+                            <div class="mt-3 w-full bg-slate-200 rounded-full h-1.5">
+                                <div id="progress-2" class="bg-corporate-primary h-1.5 rounded-full mission-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Misión 3 -->
+                    <div onclick="startMission(3)" class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer overflow-hidden border border-slate-200 group hover:scale-[1.02]">
+                        <div class="h-32 bg-slate-800 flex items-center justify-center relative overflow-hidden">
+                            <i class="fa-solid fa-file-invoice-dollar text-5xl text-slate-600 group-hover:text-corporate-accent transition-colors z-10"></i>
+                            <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/blueprint.png')]"></div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="text-lg font-bold text-corporate-primary mb-1">💰 Oficina Financiera</h3>
+                            <p class="text-sm font-semibold text-slate-700 mb-2">M3: Costos y Rentabilidad</p>
+                            <p class="text-xs text-slate-500">Controla presupuesto, ROI, costeo ABC y costos logísticos ocultos.</p>
+                            <div class="mt-3 w-full bg-slate-200 rounded-full h-1.5">
+                                <div id="progress-3" class="bg-corporate-primary h-1.5 rounded-full mission-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Misión 4 -->
+                    <div onclick="startMission(4)" class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer overflow-hidden border border-slate-200 group hover:scale-[1.02]">
+                        <div class="h-32 bg-slate-800 flex items-center justify-center relative overflow-hidden">
+                            <i class="fa-solid fa-earth-americas text-5xl text-slate-600 group-hover:text-corporate-accent transition-colors z-10"></i>
+                            <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/blueprint.png')]"></div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="text-lg font-bold text-corporate-primary mb-1">🌎 Rutas Globales</h3>
+                            <p class="text-sm font-semibold text-slate-700 mb-2">M4: Crisis Mundial</p>
+                            <p class="text-xs text-slate-500">Reacciona a huelgas, cierres de puertos, pandemias e Incoterms.</p>
+                            <div class="mt-3 w-full bg-slate-200 rounded-full h-1.5">
+                                <div id="progress-4" class="bg-corporate-primary h-1.5 rounded-full mission-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Misión 5 -->
+                    <div onclick="startMission(5)" class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer overflow-hidden border border-slate-200 group hover:scale-[1.02]">
+                        <div class="h-32 bg-slate-800 flex items-center justify-center relative overflow-hidden">
+                            <i class="fa-solid fa-tower-observation text-5xl text-slate-600 group-hover:text-corporate-accent transition-colors z-10"></i>
+                            <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/blueprint.png')]"></div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="text-lg font-bold text-corporate-primary mb-1">🖥️ Sala de Control</h3>
+                            <p class="text-sm font-semibold text-slate-700 mb-2">M5: Director Global</p>
+                            <p class="text-xs text-slate-500">Gestión de ERP, WMS, Blockchain, IA y consolidación final.</p>
+                            <div class="mt-3 w-full bg-slate-200 rounded-full h-1.5">
+                                <div id="progress-5" class="bg-corporate-primary h-1.5 rounded-full mission-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: CHALLENGE -->
+            <div id="view-challenge" class="hidden h-full flex-col fade-in max-w-4xl mx-auto">
+                <div class="mb-4 flex justify-between items-center flex-wrap gap-2">
+                    <button onclick="showMap()" class="text-corporate-secondary hover:text-corporate-primary font-semibold text-sm">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Volver al Mapa
+                    </button>
+                    <span class="text-slate-500 font-bold uppercase text-xs tracking-wider">
+                        <span id="mission-title-header">MISIÓN 1</span> | <span id="challenge-counter">1/10</span>
+                    </span>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col md:flex-row challenge-card">
+                    <div class="md:w-1/3 bg-slate-800 p-8 flex flex-col justify-center items-center text-center relative challenge-sidebar">
+                        <i id="challenge-icon" class="fa-solid fa-chart-line text-6xl text-corporate-accent mb-4 z-10"></i>
+                        <h3 class="text-white font-bold text-xl z-10" id="challenge-location">Sala de Control</h3>
+                        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                    </div>
+
+                    <div class="md:w-2/3 p-8 flex flex-col challenge-main">
+                        <div class="flex justify-between items-start mb-2 flex-wrap gap-2">
+                            <h2 id="challenge-title" class="text-2xl font-extrabold text-slate-800">Reto 1</h2>
+                            <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded">Decisión Crítica</span>
+                        </div>
+
+                        <div class="prose prose-sm text-slate-600 mb-6 flex-1" id="challenge-desc">
+                            <p>Cargando situación...</p>
+                        </div>
+
+                        <div class="flex flex-col gap-3" id="challenge-options">
+                            <!-- Opciones inyectadas por JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: CERTIFICATE -->
+            <div id="view-certificate" class="hidden h-full flex flex-col items-center justify-center fade-in">
+                <div class="bg-white p-10 rounded-none shadow-2xl border-8 border-double border-slate-800 max-w-4xl w-full text-center relative certificate-border">
+                    <div class="absolute top-4 left-4 w-16 h-16 border-t-2 border-l-2 border-slate-400"></div>
+                    <div class="absolute top-4 right-4 w-16 h-16 border-t-2 border-r-2 border-slate-400"></div>
+                    <div class="absolute bottom-4 left-4 w-16 h-16 border-b-2 border-l-2 border-slate-400"></div>
+                    <div class="absolute bottom-4 right-4 w-16 h-16 border-b-2 border-r-2 border-slate-400"></div>
+
+                    <div class="mb-6 flex justify-center">
+                        <i class="fa-solid fa-award text-6xl text-yellow-500"></i>
+                    </div>
+                    <h1 class="font-serif text-4xl text-slate-800 font-bold mb-2 uppercase tracking-widest cert-title">Certificado de Excelencia</h1>
+                    <h2 class="text-xl text-corporate-primary mb-8 font-serif cert-subtitle">Global Supply Chain Management</h2>
+
+                    <p class="text-slate-600 mb-4">Se certifica que el usuario ha completado exitosamente la simulación asumiendo el rol de:</p>
+                    <p class="text-2xl font-bold text-slate-800 mb-8 font-serif" id="cert-title">Supply Chain Director</p>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-50 p-6 rounded-lg mb-8 border border-slate-200 certificate-grid">
+                        <div>
+                            <p class="text-xs text-slate-500 uppercase font-bold">Puntuación Final</p>
+                            <p class="text-2xl font-bold text-corporate-primary cert-value" id="cert-score">92/100</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 uppercase font-bold">Rentabilidad</p>
+                            <p class="text-xl font-bold text-green-600 cert-value" id="cert-rent">90%</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 uppercase font-bold">Nivel de Servicio</p>
+                            <p class="text-xl font-bold text-blue-600 cert-value" id="cert-serv">88%</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 uppercase font-bold">Control de Riesgos</p>
+                            <p class="text-xl font-bold text-red-500 cert-value" id="cert-risk">Bajo</p>
+                        </div>
+                    </div>
+
+                    <div class="text-left bg-blue-50 p-4 rounded text-sm text-corporate-dark mb-8">
+                        <h4 class="font-bold mb-1"><i class="fa-solid fa-clipboard-check mr-1"></i> Evaluación de Gestión:</h4>
+                        <p id="cert-feedback">Has demostrado gran capacidad para equilibrar costos con nivel de servicio. Tu gestión del efecto látigo fue clave.</p>
+                    </div>
+
+                    <div class="flex justify-between items-end mt-10 border-t border-slate-300 pt-6 px-10 cert-footer">
+                        <div class="text-center">
+                            <div class="w-32 border-b border-slate-800 mb-2"></div>
+                            <p class="text-xs font-bold text-slate-600 uppercase">Junta Directiva</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-32 border-b border-slate-800 mb-2"></div>
+                            <p class="text-xs font-bold text-slate-600 uppercase">Fecha: <span id="cert-date"></span></p>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="location.reload()" class="mt-8 text-corporate-secondary hover:underline"><i class="fa-solid fa-rotate-right mr-1"></i> Reiniciar Simulación</button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL EVENTOS -->
+    <div id="event-modal" class="fixed inset-0 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden transform scale-95 transition-transform modal-content" id="modal-content">
+            <div class="bg-red-600 p-4 flex items-center justify-between">
+                <h3 class="text-white font-bold flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-2xl"></i> ⚡ EVENTO INESPERADO</h3>
+            </div>
+            <div class="p-6">
+                <p id="event-desc" class="text-slate-700 text-lg mb-6 font-medium">Un contenedor ha sido retenido en aduanas.</p>
+
+                <div class="bg-slate-100 p-3 rounded text-sm mb-6 border border-slate-200 modal-impacts">
+                    <p class="font-bold text-slate-600 mb-1">Impacto inmediato:</p>
+                    <ul id="event-impacts" class="list-disc list-inside text-red-600 ml-4">
+                        <li>Inventario -10%</li>
+                        <li>Servicio -5%</li>
+                    </ul>
+                </div>
+
+                <button onclick="closeEventModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-4 rounded transition-colors">
+                    Entendido. Reorganizar Operación.
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // ESTADO DEL JUEGO (GEMELO DIGITAL)
+        // ============================================================
+        let state = {
+            day: 1,
+            score: 1000,
+            kpis: {
+                rentabilidad: 80,
+                servicio: 85,
+                inventario: 70,
+                satisfaccion: 80,
+                riesgo: 25
+            },
+            completedMissions: [],
+            currentMission: null,
+            currentChallengeIdx: 0,
+            missionProgress: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+        };
+
+        // ============================================================
+        // BASE DE DATOS: 10 RETOS POR MISIÓN
+        // ============================================================
+        const missionsData = {
+            1: {
+                id: 1,
+                title: "M1: El Desastre de la Demanda",
+                location: "Planta Principal",
+                icon: "fa-industry",
+                challenges: [{
+                    title: "Reto 1: Pico de Demanda",
+                    desc: "📊 Ventas ayer: 150 unidades. Hoy: 470 unidades. La capacidad de producción está al 80%. ¿Qué acción tomas?",
+                    options: [
+                        { text: "A) No hacer nada, esperar confirmación de tendencia.", effects: { inventario: 5,
+                                servicio: -15, rentabilidad: -5 }, msg: "Faltó mercancía. Clientes insatisfechos. -15% Servicio." },
+                        { text: "B) Aumentar producción al 100% con horas extras.", effects: { rentabilidad: -10,
+                                servicio: 10, riesgo: 10 }, msg: "Cubriste la demanda, pero a alto costo operativo." },
+                        { text: "C) Comprar materia prima de emergencia y externalizar.", effects: { rentabilidad: -20,
+                                servicio: 15, inventario: 10 }, msg: "Salvaste al cliente, pero la rentabilidad sufrió." },
+                        { text: "D) Activar plan de contingencia con proveedor secundario.", effects: { rentabilidad: -5,
+                                servicio: 8, riesgo: -5 }, msg: "Decisión equilibrada. Buen manejo de crisis." }
+                    ]
+                }, {
+                    title: "Reto 2: Fallo de Proveedor",
+                    desc: "📦 El proveedor de empaques informa: 'No podemos entregar por 12 días debido a problemas técnicos'. El stock de empaques es crítico.",
+                    options: [
+                        { text: "A) Buscar proveedor alterno local (más caro).", effects: { rentabilidad: -10,
+                                servicio: 5, riesgo: -5 }, msg: "Buena reacción ágil. Costo adicional asumido." },
+                        { text: "B) Usar el inventario de seguridad al máximo.", effects: { inventario: -25,
+                                riesgo: 20, rentabilidad: 5 }, msg: "Ahorraste dinero, pero riesgo operativo muy alto." },
+                        { text: "C) Cancelar pedidos a clientes pequeños.", effects: { servicio: -25,
+                                satisfaccion: -30, riesgo: -5 }, msg: "Decisión fatal para el servicio y reputación." },
+                        { text: "D) Negociar entrega parcial y producir otro SKU.", effects: { rentabilidad: -5,
+                                servicio: 5, riesgo: 10 }, msg: "Creativo, pero complejo de implementar." }
+                    ]
+                }, {
+                    title: "Reto 3: Pronóstico de Demanda",
+                    desc: "📈 Los datos históricos muestran una tendencia alcista del 15% mensual. Debes construir el forecast para los próximos 3 meses.",
+                    options: [
+                        { text: "A) Aplicar promedio móvil simple (3 meses).", effects: { inventario: 5,
+                                rentabilidad: 5, riesgo: -5 }, msg: "Predecible, pero poco sensible a cambios." },
+                        { text: "B) Usar suavizamiento exponencial con ajuste estacional.", effects: { inventario: 15,
+                                rentabilidad: 10, servicio: 10 }, msg: "¡Excelente! Forecast preciso. Rentabilidad +10%." },
+                        { text: "C) Mantener el forecast actual sin cambios.", effects: { inventario: -10,
+                                servicio: -15, rentabilidad: -10 }, msg: "Error crítico. Subestimaste la demanda." }
+                    ]
+                }, {
+                    title: "Reto 4: Efecto Látigo (Bullwhip)",
+                    desc: "🔗 Un pedido grande de un cliente generó una reacción en cadena. Todos los niveles están sobre-pidiendo. ¿Cómo lo gestionas?",
+                    options: [
+                        { text: "A) Compartir datos de demanda real con todos los niveles.", effects: { inventario: 20,
+                                rentabilidad: 15, riesgo: -20 }, msg: "Excelente. Transparencia elimina el efecto látigo." },
+                        { text: "B) Reducir pedidos al proveedor drásticamente.", effects: { inventario: -15,
+                                servicio: -10, riesgo: 10 }, msg: "Sobrerreacción. Generaste rotura de stock." },
+                        { text: "C) Implementar Vendor Managed Inventory (VMI).", effects: { inventario: 15,
+                                rentabilidad: 10, riesgo: -15 }, msg: "Buena estrategia colaborativa." }
+                    ]
+                }, {
+                    title: "Reto 5: S&OP (Sales & Operations Planning)",
+                    desc: "🤝 Debes negociar entre Ventas (quiere más stock), Producción (costos), Compras (plazos) y Finanzas (presupuesto).",
+                    options: [
+                        { text: "A) Dar prioridad a Ventas y aumentar producción.", effects: { rentabilidad: -10,
+                                servicio: 15, inventario: 5 }, msg: "Ventas feliz, pero finanzas presionadas." },
+                        { text: "B) Equilibrar con un plan consensuado (S&OP).", effects: { rentabilidad: 10,
+                                servicio: 10, inventario: 10, satisfaccion: 5 },
+                            msg: "¡Decisión óptima! Todos los departamentos alineados." },
+                        { text: "C) Recortar presupuesto de compras.", effects: { inventario: -20, servicio: -15,
+                                rentabilidad: 15 }, msg: "Ahorro a corto plazo, desastre a largo plazo." }
+                    ]
+                }, {
+                    title: "Reto 6: Cliente VIP",
+                    desc: "👑 Solo queda inventario para un pedido completo. ¿A quién despachas? Cliente VIP (80% margen) o 5 clientes regulares.",
+                    options: [
+                        { text: "A) Despachar todo al VIP (margen alto).", effects: { satisfaccion: 5,
+                                servicio: -15, rentabilidad: 15 }, msg: "VIP feliz, pero 5 clientes te penalizan." },
+                        { text: "B) Ratear (dividir) el inventario entre todos.", effects: { satisfaccion: -5,
+                                servicio: 5, rentabilidad: 5 }, msg: "Equitativo. Todos reciben algo." },
+                        { text: "C) Priorizar clientes regulares por volumen.", effects: { satisfaccion: -15,
+                                servicio: 10, rentabilidad: -10 }, msg: "Perdiste al VIP. Error estratégico." }
+                    ]
+                }, {
+                    title: "Reto 7: Rotura de Inventario",
+                    desc: "⚠️ El SKU más vendido está en nivel crítico (stock < 5% de lo planificado). La reposición toma 14 días.",
+                    options: [
+                        { text: "A) Racionar el producto y comunicar a clientes.", effects: { servicio: -10,
+                                satisfaccion: -5, rentabilidad: 5 }, msg: "Transparente, pero insatisfacción." },
+                        { text: "B) Importar vía aérea (costo alto, 3 días).", effects: { rentabilidad: -25,
+                                servicio: 20, riesgo: -10 }, msg: "Salvaste el servicio, pero el margen se evaporó." },
+                        { text: "C) Reformular el producto con otro proveedor.", effects: { rentabilidad: -5,
+                                servicio: 5, riesgo: 15 }, msg: "Arriesgado pero innovador." }
+                    ]
+                }, {
+                    title: "Reto 8: Proveedor Incumple Calidad",
+                    desc: "🔬 El control de calidad detectó un lote contaminado. El proveedor no asume responsabilidad.",
+                    options: [
+                        { text: "A) Devolver el lote y buscar alternativas.", effects: { inventario: -15,
+                                servicio: -10, rentabilidad: -5 }, msg: "Costoso pero ético." },
+                        { text: "B) Reprocesar el producto internamente.", effects: { rentabilidad: -15,
+                                servicio: 5, riesgo: -5 }, msg: "Recuperas parte, pero a alto costo." },
+                        { text: "C) Activar cláusula de penalización legal.", effects: { rentabilidad: 10,
+                                riesgo: -10, satisfaccion: 5 }, msg: "Firmeza con proveedores. Buena práctica." }
+                    ]
+                }, {
+                    title: "Reto 9: Promoción Inesperada",
+                    desc: "🎉 Marketing lanzó una promoción no planificada. La demanda se disparó +300% en 24 horas.",
+                    options: [
+                        { text: "A) Detener la promoción inmediatamente.", effects: { satisfaccion: -20,
+                                servicio: -10, rentabilidad: -5 }, msg: "Clientes furiosos. Mala imagen." },
+                        { text: "B) Aumentar producción al máximo y tercerizar.", effects: { rentabilidad: -15,
+                                servicio: 20, inventario: -15 }, msg: "Respondiste, pero el costo fue alto." },
+                        { text: "C) Gestionar lista de espera y priorizar clientes.", effects: { satisfaccion: -5,
+                                servicio: 10, rentabilidad: 5 }, msg: "Control de la situación. Bien gestionado." }
+                    ]
+                }, {
+                    title: "Reto 10: Conceptos de SCM",
+                    desc: "📚 Pregunta: ¿Cuál de las siguientes opciones describe mejor el 'Efecto Látigo' en la cadena de suministro?",
+                    options: [
+                        { text: "A) La demanda se vuelve más volátil a medida que se aleja del consumidor final.",
+                            effects: { rentabilidad: 5, servicio: 5, riesgo: -5 },
+                            msg: "✅ Correcto. Excelente comprensión del concepto." },
+                        { text: "B) La producción siempre es mayor que la demanda.", effects: { rentabilidad: -5,
+                                servicio: -5, riesgo: 5 },
+                            msg: "❌ Incorrecto. El efecto látigo es sobre amplificación de variabilidad." },
+                        { text: "C) Los proveedores siempre entregan tarde.", effects: { rentabilidad: -5,
+                                servicio: -5, riesgo: 5 },
+                            msg: "❌ Incorrecto. Eso es un problema de cumplimiento." }
+                    ]
+                }]
+            },
+            2: {
+                id: 2,
+                title: "M2: El Centro de Distribución",
+                location: "CEDI Norte",
+                icon: "fa-boxes-packing",
+                challenges: [{
+                    title: "Reto 1: Recepción Frigorífica",
+                    desc: "❄️ Llegan pallets de alimentos refrigerados (temperatura crítica). Los muelles de frío están ocupados. Temperatura ambiente: 25°C.",
+                    options: [
+                        { text: "A) Dejar en el patio hasta que se libere muelle (30 min).", effects: { rentabilidad: -25,
+                                riesgo: 30, inventario: -15 },
+                            msg: "🚨 ¡ALERTA! Cadena de frío perdida. Pérdida: $40,000." },
+                        { text: "B) Detener descarga seca y priorizar frigorífico.", effects: { servicio: 5,
+                                rentabilidad: -5, riesgo: -10 },
+                            msg: "✅ Correcto. Protegiste la cadena de frío." },
+                        { text: "C) Usar cámaras portátiles de emergencia.", effects: { rentabilidad: -10,
+                                servicio: 5, riesgo: -5 }, msg: "Buena solución intermedia." }
+                    ]
+                }, {
+                    title: "Reto 2: Asignación de Muelles",
+                    desc: "🚛 6 camiones esperan descarga. Solo 4 muelles operativos. Hay mercancía urgente y carga general.",
+                    options: [
+                        { text: "A) Priorizar por orden de llegada (FIFO).", effects: { servicio: -5,
+                                rentabilidad: 5, tiempo: 5 }, msg: "Justo pero ineficiente." },
+                        { text: "B) Clasificar por urgencia (Cross Docking).", effects: { servicio: 15,
+                                rentabilidad: 10, riesgo: -5 }, msg: "Excelente. Optimizaste el flujo." },
+                        { text: "C) Tercerizar descarga a transportista externo.", effects: { rentabilidad: -15,
+                                servicio: 10, riesgo: -5 }, msg: "Costo alto pero eficiente." }
+                    ]
+                }, {
+                    title: "Reto 3: Revisión de Daños",
+                    desc: "🔍 Al recibir, detectas 15 pallets con daños visibles. ¿Qué acción tomas?",
+                    options: [
+                        { text: "A) Reportar al proveedor y rechazar la carga.", effects: { inventario: -10,
+                                servicio: -5, rentabilidad: 5 }, msg: "Correcto. Proteges la calidad." },
+                        { text: "B) Aceptar con descuento y reparar internamente.", effects: { rentabilidad: -10,
+                                servicio: 5, riesgo: 5 }, msg: "Riesgo de que el producto no sea aceptado por clientes." },
+                        { text: "C) Clasificar los que se pueden salvar.", effects: { inventario: 5, servicio: 5,
+                                riesgo: 5 }, msg: "Práctico, pero inspección riguroza requerida." }
+                    ]
+                }, {
+                    title: "Reto 4: Escaneo QR y Trazabilidad",
+                    desc: "📱 El sistema WMS requiere escanear cada pallet. La etiqueta QR de 200 pallets está dañada por humedad.",
+                    options: [
+                        { text: "A) Ingresar manualmente cada código (lento).", effects: { tiempo: -15,
+                                rentabilidad: -5, servicio: -5 }, msg: "Lento y propenso a errores." },
+                        { text: "B) Reimprimir etiquetas y re-escanear.", effects: { rentabilidad: -10,
+                                servicio: 5, riesgo: -5 }, msg: "Inversión que asegura trazabilidad." },
+                        { text: "C) Usar RFID como respaldo.", effects: { rentabilidad: -15, inventario: 15,
+                                servicio: 15 }, msg: "Inversión en tecnología que mejora precisión." }
+                    ]
+                }, {
+                    title: "Reto 5: Ubicación de Pallets (ABC)",
+                    desc: "📦 Necesitas optimizar el espacio en la bodega. La clasificación ABC muestra que 20% de SKUs mueven 80% del volumen.",
+                    options: [
+                        { text: "A) Ubicar todos los SKUs por orden alfabético.", effects: { tiempo: -15,
+                                rentabilidad: -5, servicio: -5 }, msg: "Ineficiente. Picking lento." },
+                        { text: "B) Colocar SKUs 'A' cerca del área de despacho.", effects: { tiempo: 20,
+                                rentabilidad: 15, servicio: 15 },
+                            msg: "✅ Excelente. Reducción de tiempos de picking." },
+                        { text: "C) Usar sistema aleatorio con WMS inteligente.", effects: { tiempo: 10,
+                                rentabilidad: 10, servicio: 5 }, msg: "Buena, pero requiere inversión en tecnología." }
+                    ]
+                }, {
+                    title: "Reto 6: FIFO vs FEFO",
+                    desc: "⏳ Tienes productos con diferentes fechas de vencimiento. ¿Qué método de rotación implementas?",
+                    options: [
+                        { text: "A) FIFO (First In, First Out).", effects: { inventario: 10, servicio: 5,
+                                rentabilidad: 5 }, msg: "Estándar, pero no siempre óptimo para perecederos." },
+                        { text: "B) FEFO (First Expired, First Out).", effects: { inventario: 15, servicio: 10,
+                                rentabilidad: 10 }, msg: "✅ Ideal para reducir mermas por vencimiento." },
+                        { text: "C) LIFO (Last In, First Out).", effects: { inventario: -10, servicio: -5,
+                                rentabilidad: -10 }, msg: "Pérdidas por vencimiento. Mala práctica." }
+                    ]
+                }, {
+                    title: "Reto 7: Picking Eficiente",
+                    desc: "📋 Operarios caminan en promedio 5 km por turno para armar pedidos. Necesitas mejorar la eficiencia.",
+                    options: [
+                        { text: "A) Implementar picking por zonas (batch picking).", effects: { tiempo: 20,
+                                rentabilidad: 15, servicio: 10 },
+                            msg: "✅ Excelente. Reducción de recorridos." },
+                        { text: "B) Contratar más operarios.", effects: { rentabilidad: -15, servicio: 5,
+                                tiempo: 5 }, msg: "Costo alto, eficiencia limitada." },
+                        { text: "C) Usar carros de picking inteligentes.", effects: { rentabilidad: -20,
+                                tiempo: 25, servicio: 15 }, msg: "Inversión alta pero gran retorno." }
+                    ]
+                }, {
+                    title: "Reto 8: Cross Docking",
+                    desc: "🚚 Llega mercancía que debe ser redistribuida inmediatamente a clientes sin almacenaje. El espacio de cruzamiento está saturado.",
+                    options: [
+                        { text: "A) Almacenar temporalmente y enviar mañana.", effects: { tiempo: -10,
+                                servicio: -10, rentabilidad: -5 }, msg: "Pierdes la ventaja del Cross Docking." },
+                        { text: "B) Organizar turnos de recepción y despacho.", effects: { tiempo: 15,
+                                servicio: 10, rentabilidad: 10 },
+                            msg: "✅ Optimización del flujo continuo." },
+                        { text: "C) Tercerizar la operación de Cross Docking.", effects: { rentabilidad: -10,
+                                servicio: 5, tiempo: 5 }, msg: "Costo adicional pero eficiencia." }
+                    ]
+                }, {
+                    title: "Reto 9: Carga del Camión",
+                    desc: "📦 El camión debe ser cargado con 24 pallets. Hay que considerar peso, volumen y orden de descarga.",
+                    options: [
+                        { text: "A) Cargar en orden de llegada de pedidos.", effects: { tiempo: -5, servicio: -5,
+                                rentabilidad: -5 }, msg: "Ineficiente. Peso mal distribuido." },
+                        { text: "B) Usar sistema de carga planificada por ruta.", effects: { tiempo: 15,
+                                servicio: 15, rentabilidad: 10 },
+                            msg: "✅ Distribución óptima, entregas eficientes." },
+                        { text: "C) Tercerizar la carga al transportista.", effects: { rentabilidad: -10,
+                                servicio: 5, tiempo: 5 }, msg: "Pierdes control operativo." }
+                    ]
+                }, {
+                    title: "Reto 10: Conceptos de Almacenamiento",
+                    desc: "📚 ¿Cuál es la principal ventaja del método FEFO en productos perecederos?",
+                    options: [
+                        { text: "A) Reduce el inventario total.", effects: { rentabilidad: 5, servicio: 5,
+                                riesgo: -5 }, msg: "✅ Correcto. Minimiza mermas por vencimiento." },
+                        { text: "B) Acelera el proceso de picking.", effects: { rentabilidad: -5, servicio: -5,
+                                riesgo: 5 }, msg: "❌ No es su objetivo principal." },
+                        { text: "C) Aumenta la capacidad de almacenamiento.", effects: { rentabilidad: -5,
+                                servicio: -5, riesgo: 5 },
+                            msg: "❌ Incorrecto. Es sobre rotación de inventario." }
+                    ]
+                }]
+            },
+            3: {
+                id: 3,
+                title: "M3: Costos y Rentabilidad",
+                location: "Oficina Financiera",
+                icon: "fa-file-invoice-dollar",
+                challenges: [{
+                    title: "Reto 1: Costo Logístico Oculto",
+                    desc: "📊 Finanzas reporta caída del margen. Identificas altos cargos por demoras en contenedores en puerto.",
+                    options: [
+                        { text: "A) Pagar multas y no hacer cambios.", effects: { rentabilidad: -20,
+                            riesgo: 5 }, msg: "Gasto innecesario. Rentabilidad cae." },
+                        { text: "B) Negociar días libres y usar Cross Docking.", effects: { rentabilidad: 15,
+                                servicio: 10, riesgo: -10 },
+                            msg: "✅ Excelente gestión de costos." },
+                        { text: "C) Cambiar de puerto de entrada.", effects: { rentabilidad: 5, servicio: -5,
+                                riesgo: 5 }, msg: "Puede ser útil pero no resuelve el problema raíz." }
+                    ]
+                }, {
+                    title: "Reto 2: Costeo ABC",
+                    desc: "📉 Necesitas identificar el costo real por producto. Actualmente usas costeo tradicional.",
+                    options: [
+                        { text: "A) Mantener costeo tradicional (más simple).", effects: { rentabilidad: -10,
+                            riesgo: 5 }, msg: "Sin visibilidad de costos reales." },
+                        { text: "B) Implementar costeo ABC (Activity Based Costing).", effects: { rentabilidad: 20,
+                                servicio: 5, riesgo: -15 },
+                            msg: "✅ Visibilidad total de costos por actividad." },
+                        { text: "C) Reducir costos operativos directamente.", effects: { rentabilidad: 5,
+                                servicio: -10, riesgo: 10 }, msg: "Puede afectar la calidad del servicio." }
+                    ]
+                }, {
+                    title: "Reto 3: Punto de Equilibrio",
+                    desc: "⚖️ Debes calcular el punto de equilibrio para decidir si lanzas un nuevo producto al mercado.",
+                    options: [
+                        { text: "A) Lanzar el producto sin análisis financiero.", effects: { rentabilidad: -25,
+                                riesgo: 20 }, msg: "Decisión impulsiva. Alto riesgo." },
+                        { text: "B) Calcular BEP y hacer proyecciones.", effects: { rentabilidad: 15,
+                                riesgo: -10 }, msg: "✅ Decisión basada en datos financieros." },
+                        { text: "C) Posponer el lanzamiento 6 meses.", effects: { rentabilidad: -5,
+                                servicio: -5 }, msg: "Puedes perder oportunidad de mercado." }
+                    ]
+                }, {
+                    title: "Reto 4: Flujo de Caja",
+                    desc: "💵 La empresa tiene problemas de liquidez. Los clientes pagan a 60 días pero los proveedores exigen pago a 30 días.",
+                    options: [
+                        { text: "A) Negociar extensión de pago con proveedores.", effects: { rentabilidad: 10,
+                                riesgo: -5, satisfaccion: 5 },
+                            msg: "✅ Alivia la presión de caja." },
+                        { text: "B) Ofrecer descuentos por pronto pago a clientes.", effects: { rentabilidad: -10,
+                                servicio: 5, riesgo: -5 }, msg: "Menor margen pero mejora flujo." },
+                        { text: "C) Solicitar un préstamo bancario.", effects: { rentabilidad: -15,
+                            riesgo: 10 }, msg: "Costo financiero adicional." }
+                    ]
+                }, {
+                    title: "Reto 5: ROI de Inversiones",
+                    desc: "📈 Debes evaluar si invertir $500K en automatización del CEDI, con ahorro estimado de $100K anuales.",
+                    options: [
+                        { text: "A) Invertir sin análisis detallado.", effects: { rentabilidad: -10,
+                            riesgo: 15 }, msg: "ROI incierto. Decisión arriesgada." },
+                        { text: "B) Calcular ROI (5 años de retorno).", effects: { rentabilidad: 15, servicio: 10,
+                                riesgo: -10 }, msg: "✅ Decisión informada. ROI positivo." },
+                        { text: "C) Invertir en otra área con retorno más rápido.", effects: { rentabilidad: 5,
+                                servicio: 5, riesgo: 5 }, msg: "Alternativa válida pero menos estratégica." }
+                    ]
+                }, {
+                    title: "Reto 6: Margen de Contribución",
+                    desc: "💰 El producto A tiene 60% margen, el B 30%. Pero el B vende 3 veces más. ¿Cuál priorizas?",
+                    options: [
+                        { text: "A) Priorizar producto A (mayor margen).", effects: { rentabilidad: 10,
+                                servicio: -5, satisfaccion: -5 }, msg: "Rentable pero descuida el volumen." },
+                        { text: "B) Priorizar producto B (mayor volumen).", effects: { rentabilidad: 5,
+                                servicio: 10, satisfaccion: 5 }, msg: "Equilibrio entre margen y volumen." },
+                        { text: "C) Analizar contribución total por producto.", effects: { rentabilidad: 15,
+                                servicio: 5, satisfaccion: 5 },
+                            msg: "✅ Visión integral de rentabilidad." }
+                    ]
+                }, {
+                    title: "Reto 7: Costo de Tercerización",
+                    desc: "📦 Un operador logístico ofrece 3PL por $2/pedido vs. costo interno de $3.50/pedido. ¿Qué decides?",
+                    options: [
+                        { text: "A) Tercerizar inmediatamente.", effects: { rentabilidad: 10, servicio: -5,
+                                riesgo: 10 }, msg: "Ahorro de costos pero pierdes control." },
+                        { text: "B) Mantener operación interna (control).", effects: { rentabilidad: -10,
+                                servicio: 10, riesgo: -5 }, msg: "Control total pero menos eficiente." },
+                        { text: "C) Tercerizar solo picos de demanda (híbrido).", effects: { rentabilidad: 15,
+                                servicio: 5, riesgo: -5 }, msg: "✅ Mejor equilibrio costo-control." }
+                    ]
+                }, {
+                    title: "Reto 8: Costos Ocultaos de Inventario",
+                    desc: "📊 El inventario reporta un costo del 15% anual en almacenaje, pero los costos ocultos (obsolescencia, seguro) suman otro 10%.",
+                    options: [
+                        { text: "A) Ignorar costos ocultos en el análisis.", effects: { rentabilidad: -15,
+                                riesgo: 15 }, msg: "Subestimas el costo real del inventario." },
+                        { text: "B) Incluir costos ocultos en el costo total.", effects: { rentabilidad: 10,
+                                riesgo: -10, inventario: 5 },
+                            msg: "✅ Visibilidad completa de costos." },
+                        { text: "C) Reducir niveles de inventario drásticamente.", effects: { inventario: -20,
+                                servicio: -15, rentabilidad: 5 }, msg: "Riesgo de rotura de stock." }
+                    ]
+                }, {
+                    title: "Reto 9: Presupuesto Anual",
+                    desc: "📋 Debes asignar el presupuesto 2025 entre: Tecnología (40%), Capacitación (20%), Infraestructura (30%), Contingencias (10%).",
+                    options: [
+                        { text: "A) Distribuir equitativamente (25% cada área).", effects: { rentabilidad: -5,
+                                servicio: 5, riesgo: 5 }, msg: "Equilibrio sin foco estratégico." },
+                        { text: "B) Priorizar tecnología e infraestructura (70% juntos).", effects: { rentabilidad: 15,
+                                servicio: 15, riesgo: -10 },
+                            msg: "✅ Foco en eficiencia y automatización." },
+                        { text: "C) Reducir presupuesto general 20%.", effects: { rentabilidad: 10, servicio: -15,
+                                riesgo: 15 }, msg: "Ahorro que compromete la operación." }
+                    ]
+                }, {
+                    title: "Reto 10: Conceptos Financieros",
+                    desc: "📚 ¿Qué indica un ROI positivo en una inversión logística?",
+                    options: [
+                        { text: "A) La inversión generó pérdidas.", effects: { rentabilidad: -5,
+                                servicio: -5 }, msg: "❌ Incorrecto. ROI positivo = ganancia." },
+                        { text: "B) La inversión generó beneficios mayores al costo.", effects: { rentabilidad: 15,
+                                servicio: 5, riesgo: -5 },
+                            msg: "✅ Correcto. Decisión financiera acertada." },
+                        { text: "C) No hay relación con beneficios.", effects: { rentabilidad: -5, servicio: -5,
+                                riesgo: 5 }, msg: "❌ Incorrecto. El ROI mide eso." }
+                    ]
+                }]
+            },
+            4: {
+                id: 4,
+                title: "M4: Crisis Mundial",
+                location: "Tablero Global",
+                icon: "fa-earth-americas",
+                challenges: [{
+                    title: "Reto 1: Canal Marítimo Bloqueado",
+                    desc: "🚢 Noticia: Un buque encalló bloqueando el canal. Tienes 5 contenedores en tránsito por esa ruta.",
+                    options: [
+                        { text: "A) Desviar carga a transporte aéreo.", effects: { rentabilidad: -30,
+                                servicio: 20, riesgo: -15 },
+                            msg: "Salvaste OTIF, pero costo aéreo destruye margen." },
+                        { text: "B) Notificar clientes de retraso (Fuerza Mayor).", effects: { satisfaccion: -20,
+                                servicio: -15, rentabilidad: 5 },
+                            msg: "Evitaste costo aéreo, pero insatisfacción." },
+                        { text: "C) Buscar ruta alternativa marítima (+5 días).", effects: { rentabilidad: -5,
+                                servicio: -10, riesgo: 5 }, msg: "Compromiso entre costo y tiempo." }
+                    ]
+                }, {
+                    title: "Reto 2: Huelga de Transporte",
+                    desc: "🚛 Los transportistas están en huelga indefinida. El 60% de la flota está inmovilizada.",
+                    options: [
+                        { text: "A) Negociar con los sindicatos y llegar a acuerdo.", effects: { rentabilidad: -5,
+                                servicio: 10, riesgo: -15 },
+                            msg: "✅ Solución sostenible. Riesgo controlado." },
+                        { text: "B) Usar flota alternativa subcontratada (más cara).", effects: { rentabilidad: -20,
+                                servicio: 15, riesgo: 5 }, msg: "Costo alto pero mantienes servicio." },
+                        { text: "C) Paralizar operaciones hasta que termine la huelga.", effects: { servicio: -30,
+                                rentabilidad: -20, satisfaccion: -25 },
+                            msg: "Desastre operativo. Pérdida total de clientes." }
+                    ]
+                }, {
+                    title: "Reto 3: Cierre de Puerto",
+                    desc: "⚓ El puerto principal cierra por condiciones climáticas extremas por 7 días.",
+                    options: [
+                        { text: "A) Redirigir barcos al puerto secundario.", effects: { rentabilidad: -10,
+                                servicio: 5, riesgo: -10 }, msg: "Aumenta costos pero mantiene flujo." },
+                        { text: "B) Almacenar carga en contenedores flotantes.", effects: { rentabilidad: -5,
+                                servicio: -5, riesgo: 10 }, msg: "Riesgo alto. No recomendado." },
+                        { text: "C) Cancelar entregas hasta reapertura.", effects: { servicio: -25,
+                                satisfaccion: -20, rentabilidad: -10 },
+                            msg: "Pérdida de servicio y clientes." }
+                    ]
+                }, {
+                    title: "Reto 4: Piratería Marítima",
+                    desc: "🏴‍☠️ Aumento de incidentes de piratería en la ruta del Golfo de Adén. Tus barcos pasan por ahí.",
+                    options: [
+                        { text: "A) Desviar la ruta por el Cabo de Buena Esperanza.", effects: { rentabilidad: -15,
+                                servicio: -5, riesgo: -20 }, msg: "Largo y costoso pero seguro." },
+                        { text: "B) Contratar seguridad armada para los barcos.", effects: { rentabilidad: -10,
+                                servicio: 5, riesgo: -15 },
+                            msg: "✅ Medida preventiva efectiva." },
+                        { text: "C) No hacer nada y asumir el riesgo.", effects: { rentabilidad: 5, servicio: -5,
+                                riesgo: 30 }, msg: "Riesgo inaceptable. Pérdida potencial de carga." }
+                    ]
+                }, {
+                    title: "Reto 5: Pandemia Global",
+                    desc: "🦠 Se declara pandemia. Restricciones de movimiento en 15 países. Tus plantas operan al 50%.",
+                    options: [
+                        { text: "A) Cerrar plantas hasta que pase la pandemia.", effects: { rentabilidad: -40,
+                                servicio: -30, satisfaccion: -20 },
+                            msg: "Catastrófico. Recuperación lenta." },
+                        { text: "B) Implementar protocolos de bioseguridad y turnos.", effects: { rentabilidad: -10,
+                                servicio: 10, riesgo: -10 },
+                            msg: "✅ Adaptación operativa a la crisis." },
+                        { text: "C) Relocalizar producción a países sin restricciones.", effects: { rentabilidad: -25,
+                                servicio: 5, riesgo: 5 }, msg: "Costoso pero mantiene abastecimiento." }
+                    ]
+                }, {
+                    title: "Reto 6: Ataque Cibernético",
+                    desc: "💻 El sistema ERP ha sido hackeado. No tienes visibilidad de inventario ni pedidos.",
+                    options: [
+                        { text: "A) Operar manualmente hasta restaurar sistemas.", effects: { rentabilidad: -15,
+                                servicio: -20, riesgo: 15 }, msg: "Lento, propenso a errores. Mala opción." },
+                        { text: "B) Activar plan de contingencia con backups en la nube.", effects: { rentabilidad: -5,
+                                servicio: 10, riesgo: -20 },
+                            msg: "✅ Plan de continuidad efectivo." },
+                        { text: "C) Pagar rescate para recuperar el sistema.", effects: { rentabilidad: -30,
+                                riesgo: 30, servicio: 5 }, msg: "Riesgo legal y ético. Fomenta futuros ataques." }
+                    ]
+                }, {
+                    title: "Reto 7: Incoterms y Responsabilidad",
+                    desc: "📄 Cliente exige Incoterm DDP (entregado con derechos pagados). El costo de importación es alto.",
+                    options: [
+                        { text: "A) Aceptar DDP para no perder el cliente.", effects: { rentabilidad: -15,
+                                servicio: 10, satisfaccion: 10 }, msg: "Ganas cliente pero el margen se reduce." },
+                        { text: "B) Negociar Incoterm FOB (libre a bordo).", effects: { rentabilidad: 5,
+                                servicio: -5, satisfaccion: -5 }, msg: "Trasladas responsabilidad al cliente." },
+                        { text: "C) Sugerir Incoterm CIF (costo, seguro y flete).", effects: { rentabilidad: 0,
+                                servicio: 5, satisfaccion: 5 }, msg: "✅ Compromiso equilibrado." }
+                    ]
+                }, {
+                    title: "Reto 8: Demanda +250%",
+                    desc: "📈 La demanda aumentó 250% por un cambio en el mercado. No puedes satisfacer todo.",
+                    options: [
+                        { text: "A) Priorizar clientes estratégicos (80/20).", effects: { rentabilidad: 15,
+                                servicio: 5, satisfaccion: 5 },
+                            msg: "✅ Mantienes los clientes más rentables." },
+                        { text: "B) Aumentar precios para reducir demanda.", effects: { rentabilidad: 10,
+                                servicio: -10, satisfaccion: -15 },
+                            msg: "Ganas margen pero pierdes clientes." },
+                        { text: "C) Expandir producción con nuevas plantas.", effects: { rentabilidad: -20,
+                                servicio: 15, riesgo: 10 }, msg: "Solución a largo plazo, no inmediata." }
+                    ]
+                }, {
+                    title: "Reto 9: Explicación al CEO",
+                    desc: "📞 El CEO exige una explicación de la caída del 15% en el OTIF del último mes.",
+                    options: [
+                        { text: "A) Culpar a los proveedores y transportistas.", effects: { rentabilidad: -5,
+                                riesgo: 10, satisfaccion: -5 },
+                            msg: "Mala gestión de relaciones. Pierdes credibilidad." },
+                        { text: "B) Presentar plan de acción con causas raíz.", effects: { rentabilidad: 10,
+                                servicio: 10, riesgo: -10 },
+                            msg: "✅ Transparencia y solución. Ganas confianza." },
+                        { text: "C) Minimizar el problema y prometer mejoras.", effects: { rentabilidad: -5,
+                                riesgo: 5, servicio: -5 }, msg: "Falta de compromiso real." }
+                    ]
+                }, {
+                    title: "Reto 10: Conceptos de Crisis",
+                    desc: "📚 ¿Cuál es la estrategia más efectiva ante una crisis global en la cadena de suministro?",
+                    options: [
+                        { text: "A) Reducir costos y esperar que pase.", effects: { rentabilidad: -5,
+                                servicio: -5, riesgo: 5 }, msg: "❌ Reactivo, no estratégico." },
+                        { text: "B) Diversificar proveedores y rutas (resiliencia).", effects: { rentabilidad: 15,
+                                servicio: 10, riesgo: -20 },
+                            msg: "✅ Construir una cadena robusta y antifrágil." },
+                        { text: "C) Centralizar todo en un solo proveedor.", effects: { rentabilidad: -5,
+                                servicio: -5, riesgo: 15 },
+                            msg: "❌ Alto riesgo de concentración." }
+                    ]
+                }]
+            },
+            5: {
+                id: 5,
+                title: "M5: Director Global SCM",
+                location: "Sala de Control",
+                icon: "fa-tower-observation",
+                challenges: [{
+                    title: "Reto 1: Integración Tecnológica",
+                    desc: "🖥️ El ERP no se comunica con el WMS del CEDI. Hay descuadres de inventario.",
+                    options: [
+                        { text: "A) Hacer conteos manuales diarios.", effects: { rentabilidad: -10,
+                            riesgo: 15 }, msg: "Ineficiente. Tecnología SCM desperdiciada." },
+                        { text: "B) Implementar RFID e integrar vía API.", effects: { rentabilidad: -15,
+                                inventario: 30, riesgo: -20, servicio: 15 },
+                            msg: "✅ Inversión que da visibilidad End-to-End." },
+                        { text: "C) Reemplazar todo el sistema ERP.", effects: { rentabilidad: -30,
+                                servicio: 5, riesgo: 10 }, msg: "Costoso y disruptivo." }
+                    ]
+                }, {
+                    title: "Reto 2: Implementación de Blockchain",
+                    desc: "🔗 Evalúas implementar blockchain para trazabilidad total en la cadena de frío.",
+                    options: [
+                        { text: "A) No implementar por ser muy costoso.", effects: { rentabilidad: 5,
+                                servicio: -10, riesgo: 10 }, msg: "Pierdes oportunidad de diferenciación." },
+                        { text: "B) Implementar blockchain piloto con proveedores clave.", effects: { rentabilidad: -10,
+                                servicio: 20, riesgo: -15, satisfaccion: 15 },
+                            msg: "✅ Trazabilidad total. Confianza del cliente." },
+                        { text: "C) Usar sistema tradicional de trazabilidad.", effects: { rentabilidad: 5,
+                                servicio: -5, riesgo: 5 }, msg: "Mantienes lo existente, sin innovación." }
+                    ]
+                }, {
+                    title: "Reto 3: Inteligencia Artificial",
+                    desc: "🤖 Se propone implementar IA para el pronóstico de demanda y optimización de rutas.",
+                    options: [
+                        { text: "A) Rechazar inversión por incertidumbre.", effects: { rentabilidad: -5,
+                                servicio: -10, riesgo: 10 }, msg: "Te quedas atrás competitivamente." },
+                        { text: "B) Implementar IA con un piloto de 6 meses.", effects: { rentabilidad: -10,
+                                servicio: 20, inventario: 20, riesgo: -15 },
+                            msg: "✅ Visión de futuro. Gran retorno." },
+                        { text: "C) Contratar consultoría externa para evaluar.", effects: { rentabilidad: -5,
+                                servicio: 5, riesgo: -5 }, msg: "Análisis previo, pero lento." }
+                    ]
+                }, {
+                    title: "Reto 4: Gestión de KPIs",
+                    desc: "📊 Los KPIs actuales son: OTIF 85%, Fill Rate 80%, Costo Logístico 12% sobre ventas.",
+                    options: [
+                        { text: "A) Mantener KPIs y enfocarse en ventas.", effects: { rentabilidad: 5,
+                                servicio: -5, riesgo: 5 }, msg: "No resuelves problemas de fondo." },
+                        { text: "B) Establecer metas agresivas: OTIF 95%, Fill Rate 95%.", effects: { rentabilidad: -10,
+                                servicio: 20, riesgo: -10 },
+                            msg: "✅ Visualización clara de objetivos." },
+                        { text: "C) Eliminar KPIs que no se cumplen.", effects: { rentabilidad: -10,
+                                servicio: -10, riesgo: 10 }, msg: "Error. Los KPIs muestran problemas." }
+                    ]
+                }, {
+                    title: "Reto 5: Balanced Scorecard (BSC)",
+                    desc: "📋 El CEO pide implementar BSC para alinear la estrategia operativa con la visión de la empresa.",
+                    options: [
+                        { text: "A) Usar solo KPIs financieros.", effects: { rentabilidad: 5, servicio: -10,
+                                riesgo: 5 }, msg: "Visión parcial. Ignora clientes y procesos." },
+                        { text: "B) Implementar BSC con 4 perspectivas.", effects: { rentabilidad: 15,
+                                servicio: 15, satisfaccion: 10, riesgo: -15 },
+                            msg: "✅ Visión integral y alineación estratégica." },
+                        { text: "C) Esperar un año para implementar.", effects: { rentabilidad: -5, servicio: -5,
+                                riesgo: 5 }, msg: "Pierdes oportunidad de mejora temprana." }
+                    ]
+                }, {
+                    title: "Reto 6: Modelo SCOR",
+                    desc: "📈 Necesitas evaluar la cadena de suministro usando el modelo SCOR (Plan, Source, Make, Deliver, Return).",
+                    options: [
+                        { text: "A) No usar SCOR, es muy complejo.", effects: { rentabilidad: -5,
+                                servicio: -10, riesgo: 10 }, msg: "Pierdes visión sistémica." },
+                        { text: "B) Implementar SCOR con métricas por proceso.", effects: { rentabilidad: 15,
+                                servicio: 15, riesgo: -15 },
+                            msg: "✅ Identificación de cuellos de botella." },
+                        { text: "C) Usar solo el módulo de Delivery.", effects: { rentabilidad: -5,
+                                servicio: 5, riesgo: 5 }, msg: "Incompleto, no ves la imagen completa." }
+                    ]
+                }, {
+                    title: "Reto 7: Tecnología WMS",
+                    desc: "📦 El WMS actual no soporta el volumen de pedidos. Los tiempos de picking aumentan.",
+                    options: [
+                        { text: "A) Continuar con el WMS actual y hacer horas extras.", effects: { rentabilidad: -10,
+                                servicio: -10, riesgo: 10 }, msg: "Ineficiente. Costo alto en horas extras." },
+                        { text: "B) Migrar a un WMS en la nube (SaaS).", effects: { rentabilidad: -15,
+                                servicio: 20, inventario: 15, riesgo: -15 },
+                            msg: "✅ Escalable y eficiente." },
+                        { text: "C) Usar dos WMS en paralelo.", effects: { rentabilidad: -20, servicio: -5,
+                                riesgo: 15 }, msg: "Complejidad y costo innecesario." }
+                    ]
+                }, {
+                    title: "Reto 8: Transport Management System (TMS)",
+                    desc: "🚚 El 30% de los camiones salen vacíos en el retorno. Desperdicio de capacidad.",
+                    options: [
+                        { text: "A) Ignorar, es un costo operativo normal.", effects: { rentabilidad: -10,
+                                servicio: -5, riesgo: 5 }, msg: "Desperdicio de recursos significativo." },
+                        { text: "B) Implementar TMS para optimizar rutas de retorno.", effects: { rentabilidad: 20,
+                                servicio: 10, riesgo: -10 },
+                            msg: "✅ Optimización de recursos. Rentabilidad +20%." },
+                        { text: "C) Subcontratar la logística completa.", effects: { rentabilidad: 5,
+                                servicio: -5, riesgo: 10 }, msg: "Pierdes control operativo." }
+                    ]
+                }, {
+                    title: "Reto 9: Huella Ambiental",
+                    desc: "🌱 La empresa busca reducir su huella de carbono en 40% en los próximos 3 años.",
+                    options: [
+                        { text: "A) No hacer cambios, es muy costoso.", effects: { rentabilidad: -5,
+                                servicio: -5, riesgo: 15 },
+                            msg: "Riesgo reputacional y regulatorio." },
+                        { text: "B) Implementar flota eléctrica y energías renovables.", effects: { rentabilidad: -20,
+                                servicio: 10, riesgo: -20, satisfaccion: 15 },
+                            msg: "✅ Liderazgo en sostenibilidad. Imagen positiva." },
+                        { text: "C) Compensar emisiones con bonos de carbono.", effects: { rentabilidad: -10,
+                                servicio: 5, riesgo: -5 }, msg: "Solución parcial, pero no ataca la raíz." }
+                    ]
+                }, {
+                    title: "Reto 10: Visión Estratégica",
+                    desc: "📚 ¿Qué define a una cadena de suministro de clase mundial?",
+                    options: [
+                        { text: "A) Los costos más bajos de la industria.", effects: { rentabilidad: 5,
+                                servicio: -10, riesgo: 5 },
+                            msg: "❌ No es suficiente. Calidad y servicio importan." },
+                        { text: "B) Agilidad, resiliencia, sostenibilidad y eficiencia.", effects: { rentabilidad: 20,
+                                servicio: 20, satisfaccion: 15, riesgo: -20 },
+                            msg: "✅ Excelente. Balanced Scorecard de SCM." },
+                        { text: "C) La tecnología más avanzada disponible.", effects: { rentabilidad: -5,
+                                servicio: 5, riesgo: 5 }, msg: "❌ La tecnología es un medio, no un fin." }
+                    ]
+                }]
+            }
+        };
+
+        // ============================================================
+        // EVENTOS ALEATORIOS (10 tipos)
+        // ============================================================
+        const randomEvents = [
+            { desc: "🚨 Contenedor retenido en aduanas por inspección sanitaria.", impacts: { inventario: -10,
+                    servicio: -5 }, text: "Inventario -10%, Servicio -5%" },
+            { desc: "💻 El sistema WMS ha colapsado. Operación manual por 4 horas.", impacts: { servicio: -10,
+                    rentabilidad: -5, riesgo: 10 }, text: "Servicio -10%, Rentabilidad -5%, Riesgo +10%" },
+            { desc: "📉 Cliente importante cancela pedido de $200K.", impacts: { rentabilidad: -15,
+                    satisfaccion: -5 }, text: "Rentabilidad -15%, Satisfacción -5%" },
+            { desc: "🛻 Montacargas averiado en el pasillo principal.", impacts: { servicio: -5,
+                    rentabilidad: -5 }, text: "Servicio -5%, Rentabilidad -5%" },
+            { desc: "🚛 Huelga de transporte bloquea 3 rutas principales.", impacts: { servicio: -15,
+                    rentabilidad: -10, riesgo: 10 }, text: "Servicio -15%, Rentabilidad -10%, Riesgo +10%" },
+            { desc: "🔬 Producto contaminado detectado en lote de proveedor.", impacts: { inventario: -15,
+                    servicio: -10, rentabilidad: -10, riesgo: 15 },
+                text: "Inventario -15%, Servicio -10%, Rentabilidad -10%, Riesgo +15%" },
+            { desc: "📦 Error de inventario: 500 unidades no registradas en sistema.", impacts: { inventario: -15,
+                    servicio: -10, rentabilidad: -5 }, text: "Inventario -15%, Servicio -10%, Rentabilidad -5%" },
+            { desc: "⚡ Corte eléctrico en el CEDI por 6 horas.", impacts: { servicio: -10, rentabilidad: -5,
+                    riesgo: 10 }, text: "Servicio -10%, Rentabilidad -5%, Riesgo +10%" },
+            { desc: "🌧️ Lluvias torrenciales bloquean la ruta de la costa.", impacts: { servicio: -10,
+                    rentabilidad: -5 }, text: "Servicio -10%, Rentabilidad -5%" },
+            { desc: "📈 Demanda aumentó 30% por campaña en redes sociales.", impacts: { inventario: -15,
+                    rentabilidad: 15, servicio: 5 }, text: "Inventario -15%, Rentabilidad +15%, Servicio +5%" }
+        ];
+
+        // ============================================================
+        // FUNCIONES CORE
+        // ============================================================
+
+        function init() {
+            updateUI();
+            updateMissionBadges();
+            logActivity("🚀 Sistema SCM inicializado. Esperando órdenes del Director.");
+        }
+
+        function showMap() {
+            document.getElementById('view-intro').classList.add('hidden');
+            document.getElementById('view-challenge').classList.add('hidden');
+            document.getElementById('view-map').classList.remove('hidden');
+            document.getElementById('view-certificate').classList.add('hidden');
+            updateMissionBadges();
+
+            if (state.completedMissions.length >= 5) {
+                generateCertificate();
+            }
+        }
+
+        function startMission(missionId) {
+            if (state.completedMissions.includes(missionId)) {
+                alert("✅ Esta misión ya fue completada. Selecciona otra instalación.");
+                return;
+            }
+
+            state.currentMission = missionsData[missionId];
+            state.currentChallengeIdx = 0;
+
+            document.getElementById('view-map').classList.add('hidden');
+            document.getElementById('view-challenge').classList.remove('hidden');
+
+            renderChallenge();
+            logActivity(`🏭 Ingresando a ${state.currentMission.location} (${state.currentMission.title})`);
+        }
+
+        function renderChallenge() {
+            const mission = state.currentMission;
+            const challenge = mission.challenges[state.currentChallengeIdx];
+
+            document.getElementById('mission-title-header').innerText = mission.title;
+            document.getElementById('challenge-location').innerText = mission.location;
+            document.getElementById('challenge-counter').innerText = `${state.currentChallengeIdx + 1}/${mission.challenges
+                .length}`;
+
+            const iconObj = document.getElementById('challenge-icon');
+            iconObj.className = `fa-solid ${mission.icon} text-6xl text-corporate-accent mb-4 z-10`;
+
+            document.getElementById('challenge-title').innerText = challenge.title;
+            document.getElementById('challenge-desc').innerHTML =
+                `<p class="leading-relaxed">${challenge.desc}</p><p class="font-semibold mt-4 text-slate-800">¿Qué decisión tomas como Director?</p>`;
+
+            const optionsContainer = document.getElementById('challenge-options');
+            optionsContainer.innerHTML = '';
+
+            challenge.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className =
+                    "w-full text-left bg-white border-2 border-slate-200 hover:border-corporate-primary hover:bg-blue-50 p-4 rounded-xl font-medium text-slate-700 transition-all shadow-sm hover:shadow-md text-sm";
+                btn.innerText = opt.text;
+                btn.onclick = () => handleDecision(opt);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleDecision(option) {
+            applyEffects(option.effects);
+
+            let scoreChange = 0;
+            for (let key in option.effects) {
+                scoreChange += option.effects[key] * 10;
+            }
+            state.score = Math.max(0, state.score + scoreChange);
+
+            state.day += 1;
+
+            logActivity(`⚡ Decisión: ${option.msg}`);
+            updateUI();
+            updateMissionBadges();
+
+            // Evento aleatorio (25% probabilidad)
+            if (Math.random() < 0.25) {
+                triggerRandomEvent();
+            } else {
+                nextChallenge();
+            }
+        }
+
+        function nextChallenge() {
+            state.currentChallengeIdx++;
+            const mission = state.currentMission;
+
+            // Actualizar progreso de la misión
+            const progress = Math.round((state.currentChallengeIdx / mission.challenges.length) * 100);
+            state.missionProgress[mission.id] = progress;
+            document.getElementById(`progress-${mission.id}`).style.width = `${progress}%`;
+
+            if (state.currentChallengeIdx < mission.challenges.length) {
+                renderChallenge();
+            } else {
+                // Misión completada
+                state.completedMissions.push(mission.id);
+                document.getElementById(`progress-${mission.id}`).style.width = '100%';
+
+                logActivity(`✅ MISIÓN COMPLETADA: ${mission.title} (${mission.challenges.length}/10 retos superados)`);
+
+                // Bonus por completar misión
+                state.score += 150;
+                updateUI();
+                updateMissionBadges();
+
+                alert(`🎉 ¡Misión ${mission.id} completada! Puntuación extra: +150 pts.`);
+
+                // Verificar si todas las misiones están completas
+                if (state.completedMissions.length >= 5) {
+                    generateCertificate();
+                } else {
+                    showMap();
+                }
+            }
+        }
+
+        function triggerRandomEvent() {
+            const ev = randomEvents[Math.floor(Math.random() * randomEvents.length)];
+
+            document.getElementById('event-desc').innerText = ev.desc;
+            document.getElementById('event-impacts').innerHTML = `<li>${ev.text}</li>`;
+
+            applyEffects(ev.impacts);
+            logActivity(`⚠️ EVENTO: ${ev.desc}`);
+
+            const modal = document.getElementById('event-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.getElementById('modal-content').classList.remove('scale-95');
+            document.getElementById('modal-content').classList.add('scale-100');
+        }
+
+        function closeEventModal() {
+            const modal = document.getElementById('event-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            updateUI();
+            nextChallenge();
+        }
+
+        function applyEffects(effects) {
+            for (let key in effects) {
+                if (state.kpis[key] !== undefined) {
+                    state.kpis[key] = Math.max(0, Math.min(100, state.kpis[key] + effects[key]));
+                }
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('day-counter').innerText = state.day;
+            document.getElementById('score-counter').innerText = state.score;
+            document.getElementById('mission-counter').innerText = `${state.completedMissions.length}/5`;
+
+            const kpiMapping = ['rentabilidad', 'servicio', 'inventario', 'satisfaccion', 'riesgo'];
+            kpiMapping.forEach(kpi => {
+                const val = state.kpis[kpi];
+                document.getElementById(`val-${kpi}`).innerText = `${val}%`;
+                const bar = document.getElementById(`bar-${kpi}`);
+                bar.style.width = `${val}%`;
+
+                if (kpi === 'riesgo') {
+                    if (val > 70) { bar.className = "bg-red-600 h-2.5 rounded-full kpi-bar"; } else if (val > 40) { bar
+                            .className = "bg-yellow-500 h-2.5 rounded-full kpi-bar"; } else { bar.className =
+                            "bg-green-500 h-2.5 rounded-full kpi-bar"; }
+                } else {
+                    if (val < 40) { bar.className = "bg-red-500 h-2.5 rounded-full kpi-bar"; } else if (val < 70) { bar
+                            .className = "bg-yellow-500 h-2.5 rounded-full kpi-bar"; } else {
+                        if (kpi == 'rentabilidad') bar.className = "bg-green-500 h-2.5 rounded-full kpi-bar";
+                        else if (kpi == 'servicio') bar.className = "bg-blue-500 h-2.5 rounded-full kpi-bar";
+                        else if (kpi == 'inventario') bar.className = "bg-orange-500 h-2.5 rounded-full kpi-bar";
+                        else if (kpi == 'satisfaccion') bar.className = "bg-yellow-400 h-2.5 rounded-full kpi-bar";
+                    }
+                }
+            });
+
+            checkFailState();
+        }
+
+        function updateMissionBadges() {
+            document.getElementById('map-mission-progress').innerText = `${state.completedMissions.length}/5`;
+
+            // Actualizar badges de misiones
+            for (let i = 1; i <= 5; i++) {
+                const badge = document.getElementById(`mission-${i}-badge`);
+                if (badge) {
+                    if (state.completedMissions.includes(i)) {
+                        badge.innerText = '✅ COMPLETADA';
+                        badge.className = 'bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full';
+                    } else {
+                        badge.innerText = 'ALERTA';
+                        badge.className = 'bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full alert-pulse';
+                    }
+                }
+            }
+        }
+
+        function logActivity(text) {
+            const logContainer = document.getElementById('log-entries');
+            const timeStr = `[Día ${state.day}]`;
+            const p = document.createElement('p');
+            p.innerHTML = `<span class="text-corporate-accent">${timeStr}</span> ${text}`;
+            logContainer.prepend(p);
+            // Limitar a 50 entradas
+            while (logContainer.children.length > 50) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+
+        function checkFailState() {
+            if (state.kpis.rentabilidad <= 0) {
+                alert("💀 GAME OVER: La empresa ha quebrado. Rentabilidad en 0%. Has sido despedido.");
+                location.reload();
+            }
+            if (state.kpis.riesgo >= 100) {
+                alert("💀 GAME OVER: Riesgo operativo inmanejable (100%). La junta directiva te ha removido.");
+                location.reload();
+            }
+        }
+
+        function generateCertificate() {
+            document.getElementById('view-map').classList.add('hidden');
+            document.getElementById('view-challenge').classList.add('hidden');
+            document.getElementById('view-certificate').classList.remove('hidden');
+
+            let finalGrade = Math.round(
+                (state.kpis.rentabilidad + state.kpis.servicio + state.kpis.inventario + state.kpis.satisfaccion + (100 -
+                    state.kpis.riesgo)) / 5
+            );
+            finalGrade = Math.max(0, Math.min(100, finalGrade));
+
+            document.getElementById('cert-score').innerText = `${finalGrade}/100`;
+            document.getElementById('cert-rent').innerText = `${state.kpis.rentabilidad}%`;
+            document.getElementById('cert-serv').innerText = `${state.kpis.servicio}%`;
+            document.getElementById('cert-risk').innerText = state.kpis.riesgo < 40 ? "Bajo ✅" : state.kpis.riesgo < 70 ?
+                "Medio ⚠️" : "Alto 🚨";
+
+            const today = new Date();
+            document.getElementById('cert-date').innerText = today.toLocaleDateString('es-ES', { day: '2-digit',
+                month: 'long', year: 'numeric' });
+
+            let feedback = "";
+            if (finalGrade >= 85) {
+                feedback =
+                    "🏆 EXCEPCIONAL. Has demostrado competencias de clase mundial en SCM. Equilibraste costos, servicio, inventario y riesgo con maestría. La junta directiva está impresionada con tu visión estratégica y capacidad de ejecución en tiempo real.";
+            } else if (finalGrade >= 70) {
+                feedback =
+                    "📊 BUEN DESEMPEÑO. Lograste mantener la operación estable. Se recomienda profundizar en el S&OP para equilibrar mejor la demanda y la oferta. Trabaja en la reducción del efecto látigo y costos ocultos.";
+            } else if (finalGrade >= 50) {
+                feedback =
+                    "⚠️ DESEMPEÑO ACEPTABLE. La cadena de suministro tuvo múltiples roturas. Necesitas fortalecer la resiliencia ante eventos inesperados. Enfócate en diversificar proveedores y mejorar la planificación.";
+            } else {
+                feedback =
+                    "🔄 REVISIÓN REQUERIDA. La operación fue inestable. Es fundamental mejorar la gestión de inventarios, la relación con proveedores y la capacidad de respuesta ante crisis. Te recomendamos capacitar al equipo en SCM avanzado.";
+            }
+            document.getElementById('cert-feedback').innerText = feedback;
+
+            logActivity("🎓 Certificado de Excelencia generado automáticamente.");
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
